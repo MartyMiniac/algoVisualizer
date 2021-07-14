@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 5000
 app.use('/static', express.static(path.join(__dirname, 'static')))
 
 app.get('/', (req, res) => {
-    res.sendFile(__dirname+'/views/index.html')
+    res.sendFile(__dirname + '/views/index.html')
 })
 
 app.listen(PORT, () => {
