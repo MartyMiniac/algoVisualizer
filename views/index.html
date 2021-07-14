@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>Sorting Algos</title>
+</head>
+<style>
+    html {
+        padding: 0px;
+        margin: 0px;
+        border: none;
+        background-image: url('/static/bg.jpg');
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover;
+    }
+    body {
+        width: 100%;
+        height: 100vh;
+        padding: 0;
+        margin: 0;
+        border: none;
+    }
+    #screen {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+    }
+    .header {
+        margin: 0px;
+        height: 2.5em;
+        padding: 0.5rem;
+
+        background-color: #16313b;
+    }
+    .header h1 {
+        color: white;
+        margin: 0px;
+        padding: 0px;
+        font-family: 'calibri';
+    }
+    .inputs {
+        color: white;
+        background-color: rgba(34, 90, 104, 0.411);
+        padding: 1.5rem;
+        margin: 1.5rem;
+        border-radius: 10px;
+    }
+    .loadBTN {
+        background-color: #004b55;
+        color: white;
+        padding: 0.5rem;
+    }
+    .setBTN {
+        background-color: #004119;
+        color: white;
+        padding: 0.5rem;
+    }
+    .canvasDiv {
+        color: white;
+        background-color: rgba(189, 242, 255, 0.411);
+        padding: 1.5rem;
+        margin: 1.5rem;
+        border-radius: 10px;
+    }
+</style>
+<body>
+    <div class="header">
+        <h1>Sorting algos</h1>
+    </div>
+    <div class="inputs">
+    <h1 id="headInfo">Rohan Verma</h1>
+    <p id="bodyInfo">
+        Hi there, This is Rohan Verma, I am a CSE student in Siksha 'O' Anusandhan University, Bhubaneshwar<br>
+        This project has been made to easily understand the sorting algorithms.<br><br>
+        Sorting algorithms plays a very vital role in todays era. From finding required to results to gettting things from a particular range<br>
+        all is done with the help of sorting algorithms. Infact many of the search algorithms are precided by sorting algorithms
+    </p>
+    </div>
+    <div class="inputs">
+        <label for="algoType">Select your Algorithm : </label>
+        <select name="algoSelect" id="algoType">
+            <option selected value="bubble">Bubble Sort</option>
+            <option value="selection">Selection Sort</option>
+            <option value="insertion">Insertion Sort</option>
+        </select><br>
+        <label for="algoType">Enter Numbers in each line : </label><br>
+        <textarea rows="10" cols="50" id="inputText" style="width: 100%;"></textarea><br>
+        <button class="loadBTN" id="loadBTN">LOAD AND START</button>
+        <button class="setBTN" id="setBTN">Step Animation</button>
+    </div>
+    <div class="canvasDiv">
+        <canvas id="screen"></canvas>
+    </div>
+</body>
+<script>
+    const info = {
+        bubble: {
+            head: "Bubble Sort",
+            body: "Bubble sort is a comparison based sorting algorithm wherein comparing adjacent elements is a primitive<br>operation. In each pass, it compares the adjacent elements in the array and exchanges those that are not<br>in order. Basically, each pass through the array places the next largest value in its proper place, hence the<br>number of comparisons reduces by one at each pass. In other words, each item “bubbles”up to the location<br>where it is supposed to be in the sorted sequence. This invariant is maintained by the algorithm in each<br>pass and hence, bubble sort correctly outputs the sorted sequence. For an n-element array, the below pseudo<br>code requires n − i comparisons for the i th iteration (pass)"
+        },
+        selection: {
+            head: "Selection Sort",
+            body: "Selection sort is a simple sorting algorithm. This sorting algorithm is an in-place comparison-based algorithm in which the list is divided into two parts, the sorted part at the left end and the unsorted part at the right end. Initially, the sorted part is empty and the unsorted part is the entire list.<br>The smallest element is selected from the unsorted array and swapped with the leftmost element, and that element becomes a part of the sorted array. This process continues moving unsorted array boundary by one element to the right.<br>This algorithm is not suitable for large data sets as its average and worst case complexities are of Ο(n2), where n is the number of items."
+        },
+        insertion: {
+            head: "Insertion Sort",
+            body: "Insertion sort is a sorting algorithm in which the elements are transferred one at a time to the right position. In other words, an insertion sort helps in building the final sorted list, one item at a time, with the movement of higher-ranked elements. An insertion sort has the benefits of simplicity and low overhead."
+        }
+    }
+
+    let currFrame=0
+    let numArr=[]
+    let canvasX=0, canvasY=0;
+    const ctx = document.getElementById('screen').getContext('2d')
+    let size=30
+    $(document).ready(() => {
+        canvasX=window.innerWidth
+        canvasY=window.innerHeight/2
+        document.getElementById('screen').width=window.innerWidth
+        document.getElementById('screen').height=window.innerHeight/2
+    })
+    $(window).resize(() => {
+        canvasX=window.innerWidth
+        canvasY=window.innerHeight/2
+        document.getElementById('screen').width=window.innerWidth
+        document.getElementById('screen').height=window.innerHeight/2
+    })
+    let animation = []
+    class keyFrame {
+        constructor(data, selection1, selection2, swap) {
+            this.data = [...data]
+            this.selection1=selection1
+            this.selection2=selection2
+            this.swap=swap
+        }
+    }
+    document.getElementById('loadBTN').addEventListener('click', () => {
+        currFrame=0
+        animation=[]
+        numArr=[]
+        let text = document.getElementById('inputText').value
+        arr=text.split('\n')
+        for(let t of arr) {
+            numArr.push(parseInt(t))
+        }
+
+        animation.push(new keyFrame(numArr, NaN, NaN, false))
+
+        switch(document.getElementById('algoType').value) {
+            case 'bubble':
+                document.getElementById("headInfo").innerHTML=info.bubble.head
+                document.getElementById("bodyInfo").innerHTML=info.bubble.body
+                bblSort(numArr)
+                break
+            case 'selection':
+                document.getElementById("headInfo").innerHTML=info.selection.head
+                document.getElementById("bodyInfo").innerHTML=info.selection.body
+                selectionSort(numArr)
+                break
+            case 'insertion':
+                document.getElementById("headInfo").innerHTML=info.insertion.head
+                document.getElementById("bodyInfo").innerHTML=info.insertion.body
+                insertionSort(numArr)
+                break
+        }
+
+        printAnimation(0)
+
+    })
+    function bblSort(arr){     
+        for(var i = 0; i < arr.length; i++){
+            for(var j = 0; j < ( arr.length - i -1 ); j++){
+                animation.push(new keyFrame(arr, j, j+1, false))
+                if(arr[j] > arr[j+1]){
+                    animation.push(new keyFrame(arr, j, j+1, true))
+                    var temp = arr[j]
+                    arr[j] = arr[j + 1]
+                    arr[j+1] = temp
+                }
+            }
+        }
+    }
+    function selectionSort(inputArr) { 
+        let n = inputArr.length;
+            
+        for(let i = 0; i < n; i++) {
+            let min = i;
+            for(let j = i+1; j < n; j++){
+                animation.push(new keyFrame(inputArr, j, i, false))
+                if(inputArr[j] < inputArr[min]) {
+                    animation.push(new keyFrame(inputArr, i, min, true))
+                    min=j; 
+                }
+            }
+            if (min != i) {
+                animation.push(new keyFrame(inputArr, i, min, true))
+                let tmp = inputArr[i]; 
+                inputArr[i] = inputArr[min];
+                inputArr[min] = tmp;
+                animation.push(new keyFrame(inputArr, i, min, true))
+            }
+        }
+        return inputArr;
+    }
+    function insertionSort(inputArr) {
+        let n = inputArr.length;
+            for (let i = 1; i < n; i++) {
+                let current = inputArr[i];
+                let j = i-1; 
+                while ((j > -1) && (current < inputArr[j])) {
+                    animation.push(new keyFrame(inputArr, i, j+1, false))
+                    inputArr[j+1] = inputArr[j];
+                    j--;
+                }
+                inputArr[j+1] = current;
+                animation.push(new keyFrame(inputArr, i, j+1, true))
+            }
+        return inputArr;
+    }
+
+
+    document.getElementById('setBTN').addEventListener('click', () => {
+        printAnimation(currFrame%animation.length)
+        currFrame++
+    })
+    const printAnimation = (fm) => {
+        ctx.clearRect(0, 0, canvasX, canvasY);
+        let maxHeight = numArr[numArr.length-1]
+        maxHeight = 1.0/maxHeight
+
+        for(let i=0; i<animation[fm].data.length; i++) {
+            let temp = ctx.fillStyle 
+            ctx.fillStyle ='#FFFFFF' 
+            let h=maxHeight*animation[fm].data[i]
+            if(animation[fm].selection1==i || animation[fm].selection2==i) {
+                if(animation[fm].swap)
+                    ctx.fillStyle  ='#00FF00'
+                else
+                    ctx.fillStyle  ='#FFFF00'
+                ctx.fillRect(i*size, canvasY-h*canvasY, size, h*canvasY)
+            }
+            else {
+                ctx.fillRect(i*size, canvasY-h*canvasY, size, h*canvasY)
+            }
+
+            ctx.fillStyle = "#000000"
+            ctx.font = "15px Arial";
+            ctx.fillText(animation[fm].data[i],i*size, canvasY-h*canvasY+30)
+            
+            ctx.fillStyle =temp
+        }
+    }
+</script>
+</html>
